@@ -1,6 +1,16 @@
-import React from "react"
+import { useEffect, useState } from "react";
 
 export const SelectLanguage = () => {
+  const [languages, setLanguages] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("/api/voices");
+      const data = await res.json();
+      setLanguages(data.data.values.map((v: any) => v.voiceName));
+    })();
+  }, []);
+
   return (
     <div className="flex justify-end mb-8">
       <div className="relative inline-flex self-center">
@@ -40,11 +50,16 @@ export const SelectLanguage = () => {
             </g>
           </g>
         </svg>
-        <select className="w-40 pl-5 pr-10 font-bold text-gray-600 bg-white border-2 border-indigo-500 rounded appearance-none h-14 hover:border-gray-400 focus:outline-none">
-          <option>Lang</option>
-          <option>Z-A</option>
+        <select
+          id="voice"
+          name="voice"
+          className="w-40 pl-5 pr-10 font-bold text-gray-600 bg-white border-2 border-indigo-500 rounded appearance-none h-14 hover:border-gray-400 focus:outline-none"
+        >
+          {languages.map((l) => (
+            <option key={l}>{l}</option>
+          ))}
         </select>
       </div>
     </div>
-  )
-}
+  );
+};

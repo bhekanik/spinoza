@@ -1,49 +1,79 @@
-import sdk, { SpeechSynthesizer } from "microsoft-cognitiveservices-speech-sdk";
-
-var key = process.env.KEY || "";
-var region = process.env.REGION || "";
+import fs from "fs";
+import {
+  AudioConfig,
+  ResultReason,
+  SpeechConfig,
+  SpeechSynthesizer,
+} from "microsoft-cognitiveservices-speech-sdk";
+import { PassThrough } from "stream";
+import { config } from "./config";
+import { logger } from "./logger";
 
 export interface SynthesizeOptions {
   filename?: string;
+  voice?: string;
 }
 
 export const synthesize = (text: string, options: SynthesizeOptions = {}) => {
-  var audioFile = `${options.filename ?? new Date().toISOString()}.wav`;
+  const audioFile = null;
 
-  const speechConfig = sdk.SpeechConfig.fromSubscription(key, region);
-  const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
+  const speechConfig = SpeechConfig.fromSubscription(config.key, config.region);
+  speechConfig.speechSynthesisOutputFormat = 5; // mp3
+
+  let audioConfig = undefined;
+
+  if (audioFile) {
+    audioConfig = AudioConfig.fromAudioFileOutput(audioFile);
+  }
 
   // The language of the voice that speaks.
-  speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural";
+  speechConfig.speechSynthesisVoiceName = options.voice ?? "en-US-JennyNeural";
 
   // Create the speech synthesizer.
-  let synthesizer: SpeechSynthesizer | null = new sdk.SpeechSynthesizer(
+  let synthesizer: SpeechSynthesizer | null = new SpeechSynthesizer(
     speechConfig,
     audioConfig
   );
 
-  if (synthesizer) {
-    synthesizer.speakTextAsync(
-      text,
-      (result) => {
-        if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-          console.log("synthesis finished.");
-        } else {
-          console.error(
-            "Speech synthesis canceled, " +
-              result.errorDetails +
-              "\nDid you set the speech resource key and region values?"
-          );
+  return new Promise((resolve, reject) => {
+    if (synthesizer) {
+      synthesizer.speakTextAsync(
+        text,
+        (result) => {
+          logger.info(`Synthesis result: ${result}`);
+          console.log("result:", result);
+
+          if (result.reason === ResultReason.SynthesizingAudioCompleted) {
+            const { audioData } = result;
+
+            synthesizer?.close();
+
+            if (audioFile) {
+              // return stream from file
+              const audio = fs.createReadStream(audioFile);
+              resolve(audio);
+            } else {
+              // return stream from memory
+              const bufferStream = new PassThrough();
+              bufferStream.end(Buffer.from(audioData));
+              resolve(bufferStream);
+            }
+          } else {
+            console.error(
+              "Speech synthesis canceled, " +
+                result.errorDetails +
+                "\nDid you set the speech resource key and region values?"
+            );
+          }
+        },
+        (err) => {
+          console.trace("err - " + err);
+          synthesizer?.close();
+          synthesizer = null;
+          reject(err);
         }
-        synthesizer?.close();
-        synthesizer = null;
-      },
-      (err) => {
-        console.trace("err - " + err);
-        synthesizer?.close();
-        synthesizer = null;
-      }
-    );
-    console.log("Now synthesizing to: " + audioFile);
-  }
+      );
+      console.log("Now synthesizing to: " + audioFile);
+    }
+  });
 };
