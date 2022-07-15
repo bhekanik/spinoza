@@ -24,3 +24,7 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Saved my bacon
+
+- <https://stackoverflow.com/questions/67305210/formdata-with-nextjs-api>

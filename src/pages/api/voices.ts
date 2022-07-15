@@ -6,9 +6,19 @@ import { ErrorCommon, handleApiError } from "../../lib/handleApiError";
 import { logger } from "../../lib/logger";
 import { applyCommonMiddleware } from "../../lib/middleware/applyCommonMiddleware";
 
+export interface Voice {
+  createdDateTime: string;
+  description: string;
+  gender: string;
+  locale: string;
+  properties: { publicAvailable: boolean };
+  voiceName: string;
+  label?: string;
+}
+
 type Data = {
   success: boolean;
-  data: unknown;
+  data: Voice[];
 };
 
 export default async function handler(
@@ -42,7 +52,7 @@ export default async function handler(
         tracePath: context.tracePath,
       });
 
-      res.status(200).json({ success: true, data: values });
+      res.status(200).json(values);
     }
   } catch (error: unknown) {
     handleApiError(error as ErrorCommon, res, req);

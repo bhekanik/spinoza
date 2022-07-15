@@ -1,9 +1,9 @@
-import React from "react"
+import React from "react";
 
 interface Article {
-  title: string
-  status: string
-  streamUrl: string
+  title: string;
+  status: string;
+  streamUrl: string;
 }
 
 export const ArticleList = () => {
@@ -11,7 +11,7 @@ export const ArticleList = () => {
     { title: "Art", status: "processing", streamUrl: "https://guidefari.com" },
     { title: "yo", status: "ready", streamUrl: "https://guidefari.com" },
     { title: "third", status: "error", streamUrl: "https://guidefari.com" },
-  ]
+  ];
 
   return (
     <>
@@ -22,5 +22,5 @@ export const ArticleList = () => {
         ))}
       </ul>
     </>
-  )
-}
+  );
+};

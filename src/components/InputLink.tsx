@@ -1,6 +1,7 @@
 import React from "react";
 import { generateTraceId } from "../lib/generateTraceId";
-import { SelectLanguage } from "./SelectLanguage";
+import { SelectVoice } from "./SelectLanguage";
+import { UploadFile } from "./UploadFile";
 
 export const InputLink = () => {
   const ref = React.useRef<HTMLAudioElement>(null);
@@ -9,16 +10,11 @@ export const InputLink = () => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
 
-    const response = await fetch("/api/synth", {
+    const response = await fetch("/api/synth-long", {
       method: "POST",
-      body: JSON.stringify({
-        text: data.text,
-        voice: data.voice,
-      }),
+      body: formData,
       headers: {
-        "Content-Type": "application/json",
         "x-trace-id": generateTraceId(),
         "x-trace-path": "spinoza-web",
       },
@@ -36,7 +32,7 @@ export const InputLink = () => {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <SelectLanguage />
+        <SelectVoice />
         <div className="relative flex mb-4 space-x-3 ">
           <input
             placeholder="What should I say?"
@@ -45,6 +41,7 @@ export const InputLink = () => {
             name="text"
             className="w-full max-w-md px-3 py-1 text-base leading-8 text-gray-700 transition-colors duration-200 ease-in-out bg-white border border-gray-300 rounded outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           />
+          <UploadFile />
           <button
             type="submit"
             className="px-6 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"

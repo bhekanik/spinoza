@@ -1,13 +1,13 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 
 export const UploadFile = () => {
-  const [selectedFile, setSelectedFile] = useState<File>()
+  const [selectedFile, setSelectedFile] = useState<File>();
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files?.[0]) {
-      setSelectedFile(event.target.files[0])
+      setSelectedFile(event.target.files[0]);
     }
-  }
+  };
 
   return (
     <div className="relative flex mb-4 space-x-3 ">
@@ -18,5 +18,5 @@ export const UploadFile = () => {
         onChange={changeHandler}
       />
     </div>
-  )
-}
+  );
+};
