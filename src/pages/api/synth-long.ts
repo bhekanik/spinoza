@@ -1,7 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { config } from "../../lib/config";
+import { getContext } from "../../lib/getContext";
 import { ErrorCommon, handleApiError } from "../../lib/handleApiError";
+import { applyCommonMiddleware } from "../../lib/middleware/applyCommonMiddleware";
 
 type Data = {
   success: boolean;
@@ -12,6 +14,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
+  await applyCommonMiddleware(req, res);
+  const context = getContext(req, res);
   try {
     if (req.method === "POST") {
       const inputFilePath = "<input_file_path>";

@@ -1,4 +1,5 @@
 import React from "react";
+import { generateTraceId } from "../lib/generateTraceId";
 import { SelectLanguage } from "./SelectLanguage";
 
 export const InputLink = () => {
@@ -18,6 +19,8 @@ export const InputLink = () => {
       }),
       headers: {
         "Content-Type": "application/json",
+        "x-trace-id": generateTraceId(),
+        "x-trace-path": "spinoza-web",
       },
     });
 

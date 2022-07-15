@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { getContext } from "./getContext";
 import { logger } from "./logger";
 
 export interface ErrorCommon {
@@ -13,20 +14,17 @@ export function handleApiError(
   res: NextApiResponse,
   req: NextApiRequest
 ) {
+  const context = getContext(req, res);
   if (error.status) {
     res.status(error.status as number);
   } else {
     res.status(500);
   }
 
-  const loggerMetadata = {
-    traceId: req.headers["x-trace-id"] ?? "",
-    url: req.url,
-    method: req.method,
-  };
-
   logger.error("\nAPI Error", {
-    ...loggerMetadata,
+    traceId: context.traceId,
+    tracePath: context.tracePath,
+    method: req.method,
     message: error.message || typeof error === "string" ? error : "",
     stack: process.env.NODE_ENV === "production" ? "" : error.stack,
   });

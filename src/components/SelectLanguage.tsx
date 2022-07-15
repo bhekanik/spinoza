@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
+import { generateTraceId } from "../lib/generateTraceId";
 
 export const SelectLanguage = () => {
   const [languages, setLanguages] = useState([]);
 
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/voices");
-      const data = await res.json();
-      setLanguages(data.data.values.map((v: any) => v.voiceName));
+      const res = await fetch("/api/voices", {
+        headers: {
+          "x-trace-id": generateTraceId(),
+          "x-trace-path": "spinoza-web",
+        },
+      });
+      const { data } = await res.json();
+      setLanguages(data?.map((v: any) => v.voiceName) ?? []);
     })();
   }, []);
 

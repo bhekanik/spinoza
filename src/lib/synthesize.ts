@@ -8,13 +8,20 @@ import {
 import { PassThrough } from "stream";
 import { config } from "./config";
 import { logger } from "./logger";
+import { Context } from "./types";
 
 export interface SynthesizeOptions {
   filename?: string;
   voice?: string;
 }
 
-export const synthesize = (text: string, options: SynthesizeOptions = {}) => {
+export const synthesize = (
+  context: Context,
+  text: string,
+  options: SynthesizeOptions = {}
+) => {
+  const { traceId, tracePath } = context;
+
   const audioFile = null;
 
   const speechConfig = SpeechConfig.fromSubscription(config.key, config.region);
@@ -37,11 +44,18 @@ export const synthesize = (text: string, options: SynthesizeOptions = {}) => {
 
   return new Promise((resolve, reject) => {
     if (synthesizer) {
+      logger.info(`Synthesis synthesis starting`, {
+        traceId,
+        tracePath,
+      });
       synthesizer.speakTextAsync(
         text,
         (result) => {
-          logger.info(`Synthesis result: ${result}`);
-          console.log("result:", result);
+          logger.info(`Synthesis result`, {
+            traceId,
+            tracePath,
+            result,
+          });
 
           if (result.reason === ResultReason.SynthesizingAudioCompleted) {
             const { audioData } = result;
@@ -59,21 +73,28 @@ export const synthesize = (text: string, options: SynthesizeOptions = {}) => {
               resolve(bufferStream);
             }
           } else {
-            console.error(
-              "Speech synthesis canceled, " +
-                result.errorDetails +
-                "\nDid you set the speech resource key and region values?"
+            logger.info(
+              `Speech synthesis canceled, ${result.errorDetails}\nDid you set the speech resource key and region values?`,
+              {
+                traceId,
+                tracePath,
+              }
             );
+            reject(result.errorDetails);
           }
         },
         (err) => {
           console.trace("err - " + err);
+
+          logger.info(`Error: ${err}`, {
+            traceId,
+            tracePath,
+          });
           synthesizer?.close();
           synthesizer = null;
           reject(err);
         }
       );
-      console.log("Now synthesizing to: " + audioFile);
     }
   });
 };
