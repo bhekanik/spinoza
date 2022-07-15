@@ -5,8 +5,13 @@
   "scripts": {
     "dev": "next dev | bunyan",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start | bunyan",
+    "lint": "next lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run",
+    "postbuild": "next-sitemap",
+    "prepare": "husky install"
   },
   "dependencies": {
     "bunyan": "^1.8.15",
@@ -28,11 +33,22 @@
     "@types/node": "18.0.4",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@vitest/ui": "^0.18.0",
     "autoprefixer": "^10.4.7",
     "eslint": "8.19.0",
     "eslint-config-next": "12.2.2",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.3",
     "postcss": "^8.4.14",
+    "prettier": "^2.7.1",
     "tailwindcss": "^3.1.6",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "vitest": "^0.18.0"
+  },
+  "lint-staged": {
+    "**/*.{js,ts,tsx}": "eslint --cache --fix",
+    "**/*.{js,ts,tsx,css,md}": "prettier --write",
+    "**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}": "vitest related --run"
   }
 }
