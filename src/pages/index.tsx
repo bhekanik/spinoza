@@ -1,7 +1,16 @@
 import type { NextPage } from "next"
+import { ArticleList } from "../components/ArticleList"
+import { InputLink } from "../components/InputLink"
+import { SelectLanguage } from "../components/SelectLanguage"
 
 const Home: NextPage = () => {
-  return <h1 className="text-3xl font-bold underline">Hello world!</h1>
+  return (
+    <main className="px-6 py-10">
+      <SelectLanguage />
+      <InputLink />
+      <ArticleList />
+    </main>
+  )
 }
 
 export default Home
