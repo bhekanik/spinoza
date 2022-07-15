@@ -20,19 +20,13 @@ export default async function handler(
 
   try {
     if (req.method === "POST") {
-      const {
-        body: { text, voice, filename },
-      } = req;
+      const { text, voice } = JSON.parse(req.body);
 
       if (!text) {
         throw new Error("No text provided");
       }
 
       const options: SynthesizeOptions = {};
-
-      if (filename) {
-        options.filename = filename;
-      }
 
       if (voice) {
         options.voice = voice;
@@ -43,7 +37,6 @@ export default async function handler(
         tracePath: context.tracePath,
         text,
         voice,
-        filename,
       });
       const audioStream = await synthesize(context, text, options);
 

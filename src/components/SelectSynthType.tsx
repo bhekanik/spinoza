@@ -4,14 +4,14 @@ import { useVoices } from "src/hooks/useVoices";
 
 type Gender = "male" | "female";
 
-export const SelectVoice = () => {
+export const SelectSynthType = () => {
   const { male, female } = useVoices();
 
   const [gender, setGender] = useState<Gender>("male");
 
   return (
     <div className="flex justify-end mb-8">
-      <div className="relative inline-flex self-center">
+      <div className="relative inline-flex self-center gap-2">
         <Select
           data={[
             { value: "male", label: "Male" },

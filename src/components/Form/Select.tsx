@@ -14,7 +14,7 @@ export const Select = ({
   defaultValue,
 }: Props) => {
   return (
-    <div className="flex justify-end mb-8">
+    <div className="flex justify-end mb-4">
       <div className="relative inline-flex self-center">
         <svg
           className="absolute top-0 right-0 p-2 m-2 text-white bg-indigo-500 rounded pointer-events-none"
@@ -58,7 +58,7 @@ export const Select = ({
           value={value}
           onChange={onChange}
           defaultValue={defaultValue}
-          className="w-40 pl-5 pr-10 font-bold text-gray-600 bg-white border-2 border-indigo-500 rounded appearance-none h-14 hover:border-gray-400 focus:outline-none"
+          className="pl-5 pr-16 font-bold text-gray-600 bg-white border-2 border-indigo-500 rounded appearance-none h-14 hover:border-gray-400 focus:outline-none"
         >
           {data.map((d) => (
             <option key={d.value} value={d.value}>

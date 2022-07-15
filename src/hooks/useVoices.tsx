@@ -10,7 +10,7 @@ interface CategorizedVoices {
 
 export const useVoices = (): Omit<UseQueryResult, "data"> &
   CategorizedVoices => {
-  const { data, ...rest } = useQuery<Voice[]>("deals", () =>
+  const { data, ...rest } = useQuery<Voice[]>("voices", () =>
     fetch("/api/voices", {
       headers: {
         "x-trace-id": generateTraceId(),
