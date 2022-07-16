@@ -54,7 +54,7 @@ export const synthesize = (
           logger.info(`Synthesis result`, {
             traceId,
             tracePath,
-            result,
+            resultReason: result.reason,
           });
 
           if (result.reason === ResultReason.SynthesizingAudioCompleted) {

@@ -15,6 +15,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.4.2",
     "bunyan": "^1.8.15",
     "cors": "^2.8.5",
     "form-data": "^4.0.0",
