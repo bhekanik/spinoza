@@ -1,7 +1,7 @@
+import { Button, Flex, Input } from "@chakra-ui/react";
 import React, { useEffect, useRef } from "react";
 import { useQueueLongFormSynth } from "src/hooks/useQueueLongFormSynth";
 import { useStore } from "src/stores/articles";
-import { FileUploader } from "./Form/UploadFile";
 import { SelectVoice } from "./SelectVoice";
 
 export const LongFormSynth = () => {
@@ -34,9 +34,20 @@ export const LongFormSynth = () => {
     <>
       <form onSubmit={handleSubmit}>
         <SelectVoice />
-        <div className="relative flex mb-4 gap-2 justify-center items-center w-full flex-col">
-          <FileUploader />
-          <input
+        <Flex gap={2} justifyContent="center" alignItems="center" w="full">
+          <Input
+            type="file"
+            name="file"
+            w="full"
+            flex={1}
+            alignItems="center"
+            justifyContent="center"
+            alignSelf="center"
+            justifySelf="center"
+          />
+
+          <Input
+            flex={1}
             placeholder="Title of your article"
             type="text"
             id="title"
@@ -44,14 +55,10 @@ export const LongFormSynth = () => {
             className="w-full px-3 py-1 text-base leading-8 text-gray-700 transition-colors duration-200 ease-in-out bg-white border border-gray-300 rounded outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
             ref={inputRef}
           />
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="px-6 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-          >
+          <Button type="submit" isDisabled={isLoading} colorScheme="teal">
             Synthesize
-          </button>
-        </div>
+          </Button>
+        </Flex>
 
         {isError && (
           <p className="mb-4">

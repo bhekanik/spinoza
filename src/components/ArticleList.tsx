@@ -1,3 +1,4 @@
+import { Flex, Text } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useStore } from "src/stores/articles";
 import { ArticleCard } from "./ArticleCard";
@@ -16,12 +17,12 @@ export const ArticleList = () => {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col border p-2">
-      <h2 className="my-2 text-3xl font-bold">Your Articles</h2>
+    <Flex flexDir="column">
+      <Text className="my-2 text-3xl font-bold">Your Articles</Text>
       <ul className="flex flex-col gap-2">
         {articles.length === 0 && (
           <li className="text-center p-4 border-r-2k border-solid border-gray-500 border">
-            <p className="text-gray-500">You have no articles.</p>
+            <Text className="text-gray-500">You have no articles.</Text>
           </li>
         )}
 
@@ -29,6 +30,6 @@ export const ArticleList = () => {
           <ArticleCard article={article} key={`${article.title}-${index}`} />
         ))}
       </ul>
-    </div>
+    </Flex>
   );
 };

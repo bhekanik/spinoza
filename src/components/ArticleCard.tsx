@@ -1,3 +1,4 @@
+import { Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useDeleteSynthRequest } from "src/hooks/useDeleteSythRequest";
 import { useGetFiles } from "src/hooks/useGetFiles";
@@ -59,96 +60,104 @@ export const ArticleCard = ({ article }: Props) => {
   }, [src]);
 
   return (
-    <li
-      className={`p-4 border-r-2k border-solid border-gray-500 border ${
-        statusColors[article.status ?? "NotStarted"]
-      }`}
+    <Flex
+      p={4}
+      border="1px solid"
+      borderColor="gray.500"
+      borderRadius={6}
+      className={`${statusColors[article.status ?? "NotStarted"]}`}
     >
-      <h3 className="text-2xl">{article.title || article.url}</h3>
-      <a
-        href={article.url}
-        className="text-indigo-500 hover:underline"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {article.title || article.url}
-      </a>
-      <p>{`Length: ${article.length} characters`}</p>
-      <p className={`${statusColors[article.status ?? "NotStarted"]}}`}>
-        {`Status: ${article.status ?? "NotStarted"}`}
-      </p>
-      <div className="flex flex-col gap-2 my-2">
-        <div className="flex gap-2">
-          {article.status !== "Succeeded" && (
-            <button
-              className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-              onClick={() => refreshStatus(article.synthStatusUrl ?? "")}
-            >
-              Refresh Status
-            </button>
-          )}
-
-          {article.status === "Succeeded" && !article.downloadUrl && (
-            <button
-              className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-              onClick={() =>
-                getFiles(
-                  article.id ?? article.synthStatusUrl?.split("/").at(-1) ?? ""
-                )
-              }
-            >
-              Get files
-            </button>
-          )}
-        </div>
-        {article.downloadUrl && (
+      <li>
+        <h3 className="text-2xl">{article.title || article.url}</h3>
+        <a
+          href={article.url}
+          className="text-indigo-500 hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {article.title || article.url}
+        </a>
+        <p>{`Length: ${article.length} characters`}</p>
+        <p className={`${statusColors[article.status ?? "NotStarted"]}}`}>
+          {`Status: ${article.status ?? "NotStarted"}`}
+        </p>
+        <div className="flex flex-col gap-2 my-2">
           <div className="flex gap-2">
-            <button
-              disabled={Boolean(!article.downloadUrl)}
-              className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-            >
-              <a href={article.downloadUrl} download>
-                Download
-              </a>
-            </button>
-
-            {!src && (
+            {article.status !== "Succeeded" && (
               <button
-                disabled={Boolean(!article.downloadUrl)}
                 className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-                onClick={() => {
-                  stream(article.downloadUrl ?? "");
-                }}
+                onClick={() => refreshStatus(article.synthStatusUrl ?? "")}
               >
-                Play
+                Refresh Status
               </button>
             )}
 
-            <button
-              className="block w-full px-4 py-2 text-lg text-white bg-red-500 border-0 rounded focus:outline-none hover:bg-red-600"
-              onClick={() => {
-                const id =
-                  article.id ?? article.synthStatusUrl?.split("/").at(-1) ?? "";
-                deleteArticle(id);
-                deleteRequest(id);
-              }}
-            >
-              Delete
-            </button>
+            {article.status === "Succeeded" && !article.downloadUrl && (
+              <button
+                className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
+                onClick={() =>
+                  getFiles(
+                    article.id ??
+                      article.synthStatusUrl?.split("/").at(-1) ??
+                      ""
+                  )
+                }
+              >
+                Get files
+              </button>
+            )}
           </div>
-        )}
-      </div>
+          {article.downloadUrl && (
+            <div className="flex gap-2">
+              <button
+                disabled={Boolean(!article.downloadUrl)}
+                className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
+              >
+                <a href={article.downloadUrl} download>
+                  Download
+                </a>
+              </button>
 
-      {src && (
-        <audio
-          className="w-full"
-          id="serverAudioStream"
-          ref={ref}
-          controls
-          src={src}
-          preload="none"
-        ></audio>
-      )}
-    </li>
+              {!src && (
+                <button
+                  disabled={Boolean(!article.downloadUrl)}
+                  className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
+                  onClick={() => {
+                    stream(article.downloadUrl ?? "");
+                  }}
+                >
+                  Play
+                </button>
+              )}
+
+              <button
+                className="block w-full px-4 py-2 text-lg text-white bg-red-500 border-0 rounded focus:outline-none hover:bg-red-600"
+                onClick={() => {
+                  const id =
+                    article.id ??
+                    article.synthStatusUrl?.split("/").at(-1) ??
+                    "";
+                  deleteArticle(id);
+                  deleteRequest(id);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+
+        {src && (
+          <audio
+            className="w-full"
+            id="serverAudioStream"
+            ref={ref}
+            controls
+            src={src}
+            preload="none"
+          ></audio>
+        )}
+      </li>
+    </Flex>
   );
 };
