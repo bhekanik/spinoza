@@ -37,7 +37,7 @@ router.post(async (req, res) => {
       throw new Error("Article is not found");
     }
 
-    const { title, textContent, length, siteName } = article;
+    const { title, textContent, length, siteName, excerpt } = article;
 
     logger.info("Parsing URL Completed", {
       traceId: context.traceId,
@@ -63,9 +63,11 @@ router.post(async (req, res) => {
       filename: "script.txt",
     });
 
-    formData.append("displayname", "long audio synthesis sample");
-    formData.append("description", "sample description");
-    formData.append("locale", "en-US");
+    const locale = voice.split("-").slice(0, -1).join("-");
+
+    formData.append("displayname", title || url);
+    formData.append("description", excerpt || "sample description");
+    formData.append("locale", locale || "en-US");
     formData.append("voices", JSON.stringify(voiceIdentities));
     formData.append("outputformat", "audio-16khz-128kbitrate-mono-mp3");
     formData.append("concatenateresult", "true");
@@ -81,20 +83,27 @@ router.post(async (req, res) => {
       headers,
     });
 
-    const res1 = await response;
-    console.log("data:", res1);
-    const data = res1.headers.get("location");
+    const data = await response;
 
-    console.log("data:", data);
+    if (data.status >= 400) {
+      throw new Error("Something went wrong");
+    }
+
+    const synthStatusUrl = data.headers.get("location");
+
+    const id =
+      synthStatusUrl?.split("/")[synthStatusUrl?.split("/").length - 1];
 
     logger.info("Synth Completed", {
       traceId: context.traceId,
       tracePath: context.tracePath,
+      id,
       title,
       length,
       siteName,
       url,
-      synthStatusUrl: data,
+      synthStatusUrl,
+      status: "NotStarted",
     });
 
     res.status(200).json({
@@ -102,10 +111,11 @@ router.post(async (req, res) => {
       article: {
         title,
         textContent,
+        id,
         length,
         siteName,
         url,
-        synthStatusUrl: data,
+        synthStatusUrl,
         status: "NotStarted",
       },
     });

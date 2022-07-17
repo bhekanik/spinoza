@@ -4,6 +4,7 @@ import {
   UseMutationResult,
   useQueryClient,
 } from "react-query";
+import { useStore } from "src/stores/articles";
 import { generateTraceId } from "../lib/generateTraceId";
 
 export const useGetFiles = (): Omit<
@@ -13,27 +14,33 @@ export const useGetFiles = (): Omit<
   getFiles: UseMutateFunction<unknown, unknown, string, unknown>;
 } => {
   const queryClient = useQueryClient();
+  const setDownloadUrl = useStore((state) => state.setDownloadUrl);
 
   const { mutate, ...rest } = useMutation(
-    (url: string) => {
-      return fetch("/api/get-files", {
+    async (id: string) => {
+      const res = await fetch("/api/get-files", {
         method: "POST",
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ id }),
         headers: {
           "x-trace-id": generateTraceId(),
           "x-trace-path": "spinoza-web",
         },
-      }).then((res) => res.json());
+      });
+      if (res.status >= 400) {
+        throw new Error("Failed to get files. Please try again.");
+      }
+      return res.json();
     },
     {
-      onSuccess: async () => {
+      onSuccess: async ({ id, downloadUrl }) => {
+        setDownloadUrl(id, downloadUrl);
         await queryClient.invalidateQueries("synth", {
           refetchActive: true,
           refetchInactive: true,
         });
       },
       onError: (error: unknown) => {
-        console.log("error:", error);
+        console.error("error:", error);
       },
     }
   );

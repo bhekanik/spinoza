@@ -6,14 +6,9 @@ import { ErrorCommon, handleApiError } from "../../lib/handleApiError";
 import { logger } from "../../lib/logger";
 import { applyCommonMiddleware } from "../../lib/middleware/applyCommonMiddleware";
 
-type Data = {
-  downloadUrl: string;
-  id: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
   await applyCommonMiddleware(req, res);
   const context = getContext(req, res);
@@ -22,32 +17,35 @@ export default async function handler(
     if (req.method === "POST") {
       const { id } = JSON.parse(req.body);
 
-      const url = `https://${config.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis/${id}/files`;
+      const url = `https://${config.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis/${id}/`;
       const headers = {
         "Ocp-Apim-Subscription-Key": config.key,
       };
 
-      logger.info(`Getting files`, {
+      logger.info(`Deleting synth result starting`, {
         traceId: context.traceId,
         tracePath: context.tracePath,
         id,
       });
 
       const response = await fetch(url, {
-        method: "GET",
+        method: "DELETE",
         headers,
       });
 
-      const { values } = await response.json();
+      const data = await response;
 
-      logger.info(`Getting files succeeded`, {
+      if (data.status >= 400) {
+        throw new Error("Something went wrong");
+      }
+
+      logger.info(`Deleting synth result succeeded`, {
         traceId: context.traceId,
         tracePath: context.tracePath,
         id,
-        downloadUrl: values[1].links.contentUrl,
       });
 
-      res.status(200).json({ id, downloadUrl: values[1].links.contentUrl });
+      res.status(200).json({ id });
     }
   } catch (error: unknown) {
     handleApiError(error as ErrorCommon, res, req);

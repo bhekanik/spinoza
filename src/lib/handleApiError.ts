@@ -29,9 +29,15 @@ export function handleApiError(
     stack: process.env.NODE_ENV === "production" ? "" : error.stack,
   });
 
-  res.json({
-    message: error.message || typeof error === "string" ? error : "",
-    stack: process.env.NODE_ENV === "production" ? "" : error.stack,
+  const data: ErrorCommon = {
+    message:
+      error.message || typeof error === "string" ? (error as string) : "",
     success: false,
-  });
+  };
+
+  if (process.env.NODE_ENV !== "production") {
+    data.stack = error.stack;
+  }
+
+  res.json(data);
 }

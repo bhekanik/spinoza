@@ -6,6 +6,7 @@ import { Context } from "./types";
 export interface Article {
   title: string;
   byline: string;
+  id?: string;
   dir: string;
   content: string;
   textContent: string;

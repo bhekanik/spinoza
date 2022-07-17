@@ -6,9 +6,30 @@ import { ErrorCommon, handleApiError } from "../../lib/handleApiError";
 import { logger } from "../../lib/logger";
 import { applyCommonMiddleware } from "../../lib/middleware/applyCommonMiddleware";
 
-type Data = {
-  downloadUrl: string;
+export interface SynthRequest {
+  models: [
+    {
+      id: string;
+      voiceName: string;
+    }
+  ];
+  properties: {
+    outputFormat: string;
+    concatenateResult: false;
+    totalDuration: string;
+    billableCharacterCount: number;
+  };
   id: string;
+  lastActionDateTime: string;
+  status: string;
+  createdDateTime: string;
+  locale: string;
+  displayName: string;
+  description: string;
+}
+
+type Data = {
+  values: SynthRequest[];
 };
 
 export default async function handler(
@@ -19,18 +40,15 @@ export default async function handler(
   const context = getContext(req, res);
 
   try {
-    if (req.method === "POST") {
-      const { id } = JSON.parse(req.body);
-
-      const url = `https://${config.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis/${id}/files`;
+    if (req.method === "GET") {
+      const url = `https://${config.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis`;
       const headers = {
         "Ocp-Apim-Subscription-Key": config.key,
       };
 
-      logger.info(`Getting files`, {
+      logger.info(`Getting all synth requests`, {
         traceId: context.traceId,
         tracePath: context.tracePath,
-        id,
       });
 
       const response = await fetch(url, {
@@ -40,14 +58,12 @@ export default async function handler(
 
       const { values } = await response.json();
 
-      logger.info(`Getting files succeeded`, {
+      logger.info(`Getting all synth results succeeded`, {
         traceId: context.traceId,
         tracePath: context.tracePath,
-        id,
-        downloadUrl: values[1].links.contentUrl,
       });
 
-      res.status(200).json({ id, downloadUrl: values[1].links.contentUrl });
+      res.status(200).json(values);
     }
   } catch (error: unknown) {
     handleApiError(error as ErrorCommon, res, req);

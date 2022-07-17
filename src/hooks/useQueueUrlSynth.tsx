@@ -26,15 +26,20 @@ export const useQueueUrlSynth = (): Omit<
   const queryClient = useQueryClient();
 
   const { mutate, ...rest } = useMutation(
-    (values: InputValues) => {
-      return fetch("/api/synth-url", {
+    async (values: InputValues) => {
+      const res = await fetch("/api/synth-url", {
         method: "POST",
         body: JSON.stringify(values),
         headers: {
           "x-trace-id": generateTraceId(),
           "x-trace-path": "spinoza-web",
         },
-      }).then((res) => res.json());
+      });
+
+      if (res.status >= 400) {
+        throw new Error("Failed to queue synth. Please try again.");
+      }
+      return res.json();
     },
     {
       onSuccess: async () => {
@@ -44,7 +49,7 @@ export const useQueueUrlSynth = (): Omit<
         });
       },
       onError: (error: unknown) => {
-        console.log("error:", error);
+        console.error("error:", error);
       },
     }
   );

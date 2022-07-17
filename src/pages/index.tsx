@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import { useState } from "react";
 import { Select } from "src/components/Form/Select";
 import { ShortFormSynth } from "src/components/ShortFormSynth";
+import { SynthRequestList } from "src/components/SynthRequestList";
 import { UrlSynth } from "src/components/UrlSynth";
 import { ArticleList } from "../components/ArticleList";
 import { LongFormSynth } from "../components/LongFormSynth";
@@ -31,7 +32,10 @@ const Home: NextPage = () => {
       {synthType === "long" && <LongFormSynth />}
       {synthType === "short" && <ShortFormSynth />}
       {synthType === "url" && <UrlSynth />}
-      <ArticleList />
+      <div className="flex gap-2 w-full mt-2">
+        <ArticleList />
+        <SynthRequestList />
+      </div>
     </main>
   );
 };

@@ -4,7 +4,8 @@ import { useStore } from "src/stores/articles";
 import { SelectVoice } from "./SelectVoice";
 
 export const UrlSynth = () => {
-  const { queueSynth, data, isLoading, isSuccess } = useQueueUrlSynth();
+  const { queueSynth, data, error, isError, isLoading, isSuccess } =
+    useQueueUrlSynth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,7 +35,7 @@ export const UrlSynth = () => {
     <>
       <form onSubmit={handleSubmit}>
         <SelectVoice />
-        <div className="relative flex mb-4 gap-2 justify-center items-center w-full">
+        <div className="relative flex gap-2 justify-center items-center w-full">
           <input
             ref={ref}
             placeholder="URL"
@@ -51,6 +52,12 @@ export const UrlSynth = () => {
             Synthesize
           </button>
         </div>
+
+        {isError && (
+          <p className="mb-4">
+            <span className="text-red-500">{(error as Error).message}</span>
+          </p>
+        )}
       </form>
     </>
   );

@@ -10,14 +10,19 @@ interface CategorizedVoices {
 
 export const useVoices = (): Omit<UseQueryResult, "data"> &
   CategorizedVoices => {
-  const { data, ...rest } = useQuery<Voice[]>("voices", () =>
-    fetch("/api/voices", {
+  const { data, ...rest } = useQuery<Voice[]>("voices", async () => {
+    const res = await fetch("/api/voices", {
       headers: {
         "x-trace-id": generateTraceId(),
         "x-trace-path": "spinoza-web",
       },
-    }).then((res) => res.json())
-  );
+    });
+
+    if (res.status >= 400) {
+      throw new Error("Failed to get status. Please try again.");
+    }
+    return res.json();
+  });
 
   const voices = useMemo(() => {
     if (data) {

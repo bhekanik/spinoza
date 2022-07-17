@@ -15,15 +15,20 @@ export const useQueueLongFormSynth = (): Omit<
   const queryClient = useQueryClient();
 
   const { mutate, ...rest } = useMutation(
-    (formData: FormData) => {
-      return fetch("/api/synth-long", {
+    async (formData: FormData) => {
+      const res = await fetch("/api/synth-long", {
         method: "POST",
         body: formData,
         headers: {
           "x-trace-id": generateTraceId(),
           "x-trace-path": "spinoza-web",
         },
-      }).then((res) => res.blob());
+      });
+
+      if (res.status >= 400) {
+        throw new Error("Failed to queue long form synth. Please try again.");
+      }
+      return res.json();
     },
     {
       onSuccess: async () => {
@@ -33,7 +38,7 @@ export const useQueueLongFormSynth = (): Omit<
         });
       },
       onError: (error: unknown) => {
-        console.log("error:", error);
+        console.error("error:", error);
       },
     }
   );
