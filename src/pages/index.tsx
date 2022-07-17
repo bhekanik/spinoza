@@ -10,7 +10,7 @@ import { LongFormSynth } from "../components/LongFormSynth";
 export type SynthType = "short" | "long" | "url";
 
 const Home: NextPage = () => {
-  const [synthType, setSynthType] = useState("url");
+  const [synthType, setSynthType] = useState("long");
 
   return (
     <main className="px-6 pt-8">

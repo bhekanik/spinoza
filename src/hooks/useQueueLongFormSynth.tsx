@@ -4,13 +4,18 @@ import {
   UseMutationResult,
   useQueryClient,
 } from "react-query";
+import { Article } from "src/lib/parseUrl";
 import { generateTraceId } from "../lib/generateTraceId";
 
+interface ReturnType {
+  article: Article;
+}
+
 export const useQueueLongFormSynth = (): Omit<
-  UseMutationResult<Blob, unknown, FormData, unknown>,
+  UseMutationResult<ReturnType, unknown, FormData, unknown>,
   "mutate"
 > & {
-  queueSynth: UseMutateFunction<Blob, unknown, FormData, unknown>;
+  queueSynth: UseMutateFunction<ReturnType, unknown, FormData, unknown>;
 } => {
   const queryClient = useQueryClient();
 
@@ -32,7 +37,7 @@ export const useQueueLongFormSynth = (): Omit<
     },
     {
       onSuccess: async () => {
-        await queryClient.invalidateQueries("long-form-synth", {
+        await queryClient.invalidateQueries("synth", {
           refetchActive: true,
           refetchInactive: true,
         });

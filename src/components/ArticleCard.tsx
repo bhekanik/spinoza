@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDeleteSynthRequest } from "src/hooks/useDeleteSythRequest";
 import { useGetFiles } from "src/hooks/useGetFiles";
 import { useRefreshStatus } from "src/hooks/useRefreshStatus";
@@ -24,6 +24,8 @@ export const ArticleCard = ({ article }: Props) => {
   const { deleteRequest } = useDeleteSynthRequest();
   const deleteArticle = useStore((state) => state.deleteArticle);
 
+  const [src, setSrc] = useState<string>("");
+
   useEffect(() => {
     let id: NodeJS.Timer | undefined;
     if (article.status !== "Succeeded") {
@@ -39,18 +41,22 @@ export const ArticleCard = ({ article }: Props) => {
     };
   }, [article, refreshStatus, getFiles]);
 
-  const ref = useRef<HTMLAudioElement>(null);
-
   useEffect(() => {
     if (data) {
       const url = URL.createObjectURL(data);
-
-      if (ref.current) {
-        ref.current.src = url;
-        // ref.current.play();
-      }
+      setSrc(url);
     }
   }, [data]);
+
+  const ref = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (src) {
+      if (ref.current) {
+        ref.current.play();
+      }
+    }
+  }, [src]);
 
   return (
     <li
@@ -106,15 +112,17 @@ export const ArticleCard = ({ article }: Props) => {
               </a>
             </button>
 
-            <button
-              disabled={Boolean(!article.downloadUrl)}
-              className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-              onClick={() => {
-                stream(article.downloadUrl ?? "");
-              }}
-            >
-              Load Audio
-            </button>
+            {!src && (
+              <button
+                disabled={Boolean(!article.downloadUrl)}
+                className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
+                onClick={() => {
+                  stream(article.downloadUrl ?? "");
+                }}
+              >
+                Play
+              </button>
+            )}
 
             <button
               className="block w-full px-4 py-2 text-lg text-white bg-red-500 border-0 rounded focus:outline-none hover:bg-red-600"
@@ -131,13 +139,16 @@ export const ArticleCard = ({ article }: Props) => {
         )}
       </div>
 
-      <audio
-        className="w-full"
-        ref={ref}
-        id="serverAudioStream"
-        controls
-        preload="none"
-      ></audio>
+      {src && (
+        <audio
+          className="w-full"
+          id="serverAudioStream"
+          ref={ref}
+          controls
+          src={src}
+          preload="none"
+        ></audio>
+      )}
     </li>
   );
 };

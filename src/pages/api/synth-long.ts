@@ -4,7 +4,9 @@ import multer from "multer";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createRouter } from "next-connect";
 import fetch from "node-fetch";
+import { getContext } from "src/lib/getContext";
 import { ErrorCommon, handleApiError } from "src/lib/handleApiError";
+import { logger } from "src/lib/logger";
 import { config as appConfig } from "../../lib/config";
 
 // Default Req and Res are IncomingMessage and ServerResponse
@@ -28,9 +30,10 @@ export default router.handler({
 router.use(multer().any());
 
 router.post(async (req, res) => {
+  const context = getContext(req, res);
   try {
     const { body } = req;
-    const { voice, text, locale } = body;
+    const { voice, title } = body;
 
     const url = `https://${appConfig.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis`;
 
@@ -49,9 +52,11 @@ router.post(async (req, res) => {
       filename: file.originalname,
     });
 
-    formData.append("displayname", "long audio synthesis sample");
-    formData.append("description", "sample description");
-    formData.append("locale", "en-US");
+    const locale = voice.split("-").slice(0, -1).join("-");
+
+    formData.append("displayname", title || new Date().toISOString());
+    formData.append("description", "Uploaded via file upload");
+    formData.append("locale", locale || "en-US");
     formData.append("voices", JSON.stringify(voiceIdentities));
     formData.append("outputformat", "audio-16khz-128kbitrate-mono-mp3");
     formData.append("concatenateresult", "true");
@@ -67,9 +72,42 @@ router.post(async (req, res) => {
       headers,
     });
 
-    const data = await response.headers.get("location");
+    const data = await response;
 
-    res.status(200).json({ data: "success", location: data });
+    if (data.status >= 400) {
+      throw new Error("Something went wrong");
+    }
+
+    const synthStatusUrl = data.headers.get("location");
+
+    const id =
+      synthStatusUrl?.split("/")[synthStatusUrl?.split("/").length - 1];
+
+    logger.info("Synth Completed", {
+      traceId: context.traceId,
+      tracePath: context.tracePath,
+      id,
+      title: title || "",
+      length: 0,
+      siteName: "",
+      url: "",
+      synthStatusUrl,
+      status: "NotStarted",
+    });
+
+    res.status(200).json({
+      success: true,
+      article: {
+        title: title || "",
+        textContent: "",
+        id,
+        length: 0,
+        siteName: "",
+        url: "",
+        synthStatusUrl,
+        status: "NotStarted",
+      },
+    });
   } catch (error: unknown) {
     handleApiError(error as ErrorCommon, res, req);
   }
