@@ -2,13 +2,14 @@ import type { NextPage } from "next";
 import { useState } from "react";
 import { Select } from "src/components/Form/Select";
 import { ShortFormSynth } from "src/components/ShortFormSynth";
+import { UrlSynth } from "src/components/UrlSynth";
 import { ArticleList } from "../components/ArticleList";
 import { LongFormSynth } from "../components/LongFormSynth";
 
-export type SynthType = "short" | "long";
+export type SynthType = "short" | "long" | "url";
 
 const Home: NextPage = () => {
-  const [synthType, setSynthType] = useState("short");
+  const [synthType, setSynthType] = useState("url");
 
   return (
     <main className="px-6 pt-8">
@@ -17,9 +18,9 @@ const Home: NextPage = () => {
           <Select
             data={[
               { value: "short", label: "Short Form Synth" },
+              { value: "url", label: "URL Synth" },
               { value: "long", label: "Long Form Synth" },
             ]}
-            defaultValue="short"
             value={synthType}
             onChange={(e) => setSynthType(e.target.value as SynthType)}
             name="synthType"
@@ -27,7 +28,9 @@ const Home: NextPage = () => {
         </div>
       </div>
 
-      {synthType === "short" ? <ShortFormSynth /> : <LongFormSynth />}
+      {synthType === "long" && <LongFormSynth />}
+      {synthType === "short" && <ShortFormSynth />}
+      {synthType === "url" && <UrlSynth />}
       <ArticleList />
     </main>
   );

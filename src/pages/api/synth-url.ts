@@ -1,10 +1,12 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import FormData from "form-data";
-import multer from "multer";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createRouter } from "next-connect";
 import fetch from "node-fetch";
+import { getContext } from "src/lib/getContext";
 import { ErrorCommon, handleApiError } from "src/lib/handleApiError";
+import { logger } from "src/lib/logger";
+import { parseUrl } from "src/lib/parseUrl";
 import { config as appConfig } from "../../lib/config";
 
 // Default Req and Res are IncomingMessage and ServerResponse
@@ -23,16 +25,30 @@ export default router.handler({
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-router.use(multer().any());
-
 router.post(async (req, res) => {
   try {
+    const context = getContext(req, res);
     const { body } = req;
-    const { voice, text, locale } = body;
+    const { voice, url } = JSON.parse(body);
 
-    const url = `https://${appConfig.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis`;
+    const article = await parseUrl(context, url);
+
+    if (!article) {
+      throw new Error("Article is not found");
+    }
+
+    const { title, textContent, length, siteName } = article;
+
+    logger.info("Parsing URL Completed", {
+      traceId: context.traceId,
+      tracePath: context.tracePath,
+      title,
+      length,
+      siteName,
+      url,
+    });
+
+    const synthUrl = `https://${appConfig.region}.customvoice.api.speech.microsoft.com/api/texttospeech/v3.0/longaudiosynthesis`;
 
     const voiceIdentities = [
       {
@@ -41,12 +57,10 @@ router.post(async (req, res) => {
     ];
 
     const formData = new FormData();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const file = req.files[0];
-    formData.append("script", file.buffer, {
-      contentType: file.mimetype,
-      filename: file.originalname,
+    const buff = Buffer.from(textContent, "utf8");
+    formData.append("script", buff, {
+      contentType: "text/plain",
+      filename: "script.txt",
     });
 
     formData.append("displayname", "long audio synthesis sample");
@@ -61,22 +75,41 @@ router.post(async (req, res) => {
       "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}`,
     };
 
-    const response = await fetch(url, {
+    const response = await fetch(synthUrl, {
       body: formData,
       method: "POST",
       headers,
     });
 
-    const data = await response.headers.get("location");
+    const res1 = await response;
+    console.log("data:", res1);
+    const data = res1.headers.get("location");
 
-    res.status(200).json({ data: "success", location: data });
+    console.log("data:", data);
+
+    logger.info("Synth Completed", {
+      traceId: context.traceId,
+      tracePath: context.tracePath,
+      title,
+      length,
+      siteName,
+      url,
+      synthStatusUrl: data,
+    });
+
+    res.status(200).json({
+      success: true,
+      article: {
+        title,
+        textContent,
+        length,
+        siteName,
+        url,
+        synthStatusUrl: data,
+        status: "NotStarted",
+      },
+    });
   } catch (error: unknown) {
     handleApiError(error as ErrorCommon, res, req);
   }
 });
-
-export const config = {
-  api: {
-    bodyParser: false, // Disallow body parsing, consume as stream
-  },
-};
