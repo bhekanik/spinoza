@@ -14,14 +14,14 @@ interface Props {
 
 export const statusColors: Record<string, string> = {
   NotStarted: "yellow.100",
-  Running: "orange.100",
+  Running: "blue.100",
   Succeeded: "green.100",
   Failed: "red.100",
 };
 
 export const statusColorsDark: Record<string, string> = {
   NotStarted: "yellow.900",
-  Running: "orange.900",
+  Running: "blue.800",
   Succeeded: "teal.800",
   Failed: "red.900",
 };

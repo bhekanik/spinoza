@@ -1,3 +1,4 @@
+import { Flex, Text } from "@chakra-ui/react";
 import { useSynthResults } from "src/hooks/useSynthResults";
 import { SynthRequestCard } from "./SynthRequestCard";
 
@@ -5,8 +6,8 @@ export const SynthRequestList = () => {
   const { synthResults } = useSynthResults();
 
   return (
-    <div className="flex flex-1 flex-col border p-2">
-      <h2 className="my-2 text-3xl font-bold">Synth Requests</h2>
+    <Flex flexDir="column">
+      <Text className="my-2 text-3xl font-bold">Synth Requests</Text>
       <ul className="flex flex-col gap-2">
         {synthResults.length === 0 && (
           <li className="text-center p-4 border-r-2k border-solid border-gray-500 border">
@@ -21,6 +22,6 @@ export const SynthRequestList = () => {
           />
         ))}
       </ul>
-    </div>
+    </Flex>
   );
 };

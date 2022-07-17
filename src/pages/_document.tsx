@@ -25,7 +25,7 @@ export default class Document extends NextDocument {
             sizes="16x16"
             href="/favicon-16x16.png"
           />
-          <link rel="manifest" href="/webmanifest.json" />
+          <link rel="manifest" href="/manifest.json" />
         </Head>
         <body>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />
