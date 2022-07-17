@@ -18,16 +18,16 @@ export const UrlSynth = () => {
 
   const addArticle = useStore((state) => state.addArticle);
 
-  const ref = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isSuccess && ref.current) {
+    if (isSuccess && inputRef.current) {
       if (data) {
         addArticle(data.article);
       }
 
-      ref.current.value = "";
-      ref.current.focus();
+      inputRef.current.value = "";
+      inputRef.current.focus();
     }
   }, [isSuccess, data, addArticle]);
 
@@ -37,7 +37,7 @@ export const UrlSynth = () => {
         <SelectVoice />
         <div className="relative flex gap-2 justify-center items-center w-full">
           <input
-            ref={ref}
+            ref={inputRef}
             placeholder="URL"
             type="url"
             id="url"

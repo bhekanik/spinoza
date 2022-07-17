@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDeleteSynthRequest } from "src/hooks/useDeleteSythRequest";
 import { useGetFiles } from "src/hooks/useGetFiles";
 import { useRefreshStatus } from "src/hooks/useRefreshStatus";
+import { useStreamZip } from "src/hooks/useStreamZip";
 import { Article } from "src/lib/parseUrl";
 import { useStore } from "src/stores/articles";
 
@@ -19,6 +20,7 @@ const statusColors: Record<string, string> = {
 export const ArticleCard = ({ article }: Props) => {
   const { refreshStatus } = useRefreshStatus();
   const { getFiles } = useGetFiles();
+  const { stream, data } = useStreamZip();
   const { deleteRequest } = useDeleteSynthRequest();
   const deleteArticle = useStore((state) => state.deleteArticle);
 
@@ -36,6 +38,19 @@ export const ArticleCard = ({ article }: Props) => {
       if (id !== undefined) clearInterval(id);
     };
   }, [article, refreshStatus, getFiles]);
+
+  const ref = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (data) {
+      const url = URL.createObjectURL(data);
+
+      if (ref.current) {
+        ref.current.src = url;
+        // ref.current.play();
+      }
+    }
+  }, [data]);
 
   return (
     <li
@@ -56,7 +71,7 @@ export const ArticleCard = ({ article }: Props) => {
       <p className={`${statusColors[article.status ?? "NotStarted"]}}`}>
         {`Status: ${article.status ?? "NotStarted"}`}
       </p>
-      <div className="flex flex-col gap-2 mt-2">
+      <div className="flex flex-col gap-2 my-2">
         <div className="flex gap-2">
           {article.status !== "Succeeded" && (
             <button
@@ -92,6 +107,16 @@ export const ArticleCard = ({ article }: Props) => {
             </button>
 
             <button
+              disabled={Boolean(!article.downloadUrl)}
+              className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
+              onClick={() => {
+                stream(article.downloadUrl ?? "");
+              }}
+            >
+              Load Audio
+            </button>
+
+            <button
               className="block w-full px-4 py-2 text-lg text-white bg-red-500 border-0 rounded focus:outline-none hover:bg-red-600"
               onClick={() => {
                 const id =
@@ -105,6 +130,14 @@ export const ArticleCard = ({ article }: Props) => {
           </div>
         )}
       </div>
+
+      <audio
+        className="w-full"
+        ref={ref}
+        id="serverAudioStream"
+        controls
+        preload="none"
+      ></audio>
     </li>
   );
 };

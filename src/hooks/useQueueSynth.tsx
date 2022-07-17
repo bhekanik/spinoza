@@ -33,7 +33,7 @@ export const useQueueSynth = (): Omit<
       if (res.status >= 400) {
         throw new Error("Failed to queue synth. Please try again.");
       }
-      return res.json();
+      return res.blob();
     },
     {
       onSuccess: async () => {
