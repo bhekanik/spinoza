@@ -21,7 +21,7 @@ import { LongFormSynth } from "../components/LongFormSynth";
 export type SynthType = "short" | "long" | "url";
 
 const Home: NextPage = () => {
-  const [synthType, setSynthType] = useState("long");
+  const [synthType, setSynthType] = useState("url");
   const [isLessThan768] = useMediaQuery("(max-width: 768px)");
 
   return (
@@ -30,11 +30,12 @@ const Home: NextPage = () => {
         name="gender"
         onChange={(nextValue: SynthType) => setSynthType(nextValue)}
         value={synthType}
+        mb={2}
       >
         <Stack direction="row">
+          <Radio value="url">URL</Radio>
           <Radio value="short">Short</Radio>
           <Radio value="long">Long</Radio>
-          <Radio value="url">URL</Radio>
         </Stack>
       </RadioGroup>
 

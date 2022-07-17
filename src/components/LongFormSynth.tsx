@@ -38,12 +38,14 @@ export const LongFormSynth = () => {
           <Input
             type="file"
             name="file"
-            w="full"
             flex={1}
-            alignItems="center"
-            justifyContent="center"
-            alignSelf="center"
-            justifySelf="center"
+            p={1}
+            border="1px solid"
+            borderColor="gray.200"
+            _dark={{
+              borderColor: "gray.600",
+            }}
+            borderRadius={6}
           />
 
           <Input

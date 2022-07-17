@@ -1,4 +1,5 @@
-import { Flex } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Button, Flex, Link, Text } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useDeleteSynthRequest } from "src/hooks/useDeleteSythRequest";
 import { useGetFiles } from "src/hooks/useGetFiles";
@@ -11,11 +12,18 @@ interface Props {
   article: Article;
 }
 
-const statusColors: Record<string, string> = {
-  NotStarted: "bg-yellow-100",
-  Running: "bg-orange-100",
-  Succeeded: "bg-green-100",
-  Failed: "bg-red-100",
+export const statusColors: Record<string, string> = {
+  NotStarted: "yellow.100",
+  Running: "orange.100",
+  Succeeded: "green.100",
+  Failed: "red.100",
+};
+
+export const statusColorsDark: Record<string, string> = {
+  NotStarted: "yellow.900",
+  Running: "orange.900",
+  Succeeded: "teal.800",
+  Failed: "red.900",
 };
 
 export const ArticleCard = ({ article }: Props) => {
@@ -62,102 +70,107 @@ export const ArticleCard = ({ article }: Props) => {
   return (
     <Flex
       p={4}
+      flexDir="column"
       border="1px solid"
       borderColor="gray.500"
       borderRadius={6}
-      className={`${statusColors[article.status ?? "NotStarted"]}`}
+      bg={`${statusColors[article.status ?? "NotStarted"]}`}
+      _dark={{
+        bg: `${statusColorsDark[article.status ?? "NotStarted"]}`,
+      }}
     >
-      <li>
-        <h3 className="text-2xl">{article.title || article.url}</h3>
-        <a
-          href={article.url}
-          className="text-indigo-500 hover:underline"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {article.title || article.url}
-        </a>
-        <p>{`Length: ${article.length} characters`}</p>
-        <p className={`${statusColors[article.status ?? "NotStarted"]}}`}>
-          {`Status: ${article.status ?? "NotStarted"}`}
-        </p>
-        <div className="flex flex-col gap-2 my-2">
-          <div className="flex gap-2">
-            {article.status !== "Succeeded" && (
-              <button
-                className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-                onClick={() => refreshStatus(article.synthStatusUrl ?? "")}
-              >
-                Refresh Status
-              </button>
-            )}
+      <Text className="text-2xl">{article.title || article.url}</Text>
+      <Link
+        display="flex"
+        gap={2}
+        alignItems="center"
+        color="teal.500"
+        _dark={{
+          color: "teal.100",
+        }}
+        target="_blank"
+        href={article.url ?? ""}
+      >
+        {article.title || article.url || ""}
+        <ExternalLinkIcon w={3} h={3} />
+      </Link>
+      <Text>{`Length: ${article.length} characters`}</Text>
+      <Text className={`${statusColors[article.status ?? "NotStarted"]}}`}>
+        {`Status: ${article.status ?? "NotStarted"}`}
+      </Text>
+      <Flex flexDir="column" gap={2} my={2} w="full">
+        <Flex gap={2}>
+          {article.status !== "Succeeded" && (
+            <Button
+              colorScheme="teal"
+              onClick={() => refreshStatus(article.synthStatusUrl ?? "")}
+            >
+              Refresh Status
+            </Button>
+          )}
 
-            {article.status === "Succeeded" && !article.downloadUrl && (
-              <button
-                className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-                onClick={() =>
-                  getFiles(
-                    article.id ??
-                      article.synthStatusUrl?.split("/").at(-1) ??
-                      ""
-                  )
-                }
-              >
-                Get files
-              </button>
-            )}
-          </div>
-          {article.downloadUrl && (
-            <div className="flex gap-2">
-              <button
-                disabled={Boolean(!article.downloadUrl)}
-                className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-              >
-                <a href={article.downloadUrl} download>
-                  Download
-                </a>
-              </button>
+          {article.status === "Succeeded" && !article.downloadUrl && (
+            <Button
+              colorScheme="teal"
+              onClick={() =>
+                getFiles(
+                  article.id ?? article.synthStatusUrl?.split("/").at(-1) ?? ""
+                )
+              }
+            >
+              Get files
+            </Button>
+          )}
+        </Flex>
+        {article.downloadUrl && (
+          <Flex gap={2} w="full" justifyContent="end">
+            <Button
+              as="a"
+              colorScheme="teal"
+              isDisabled={Boolean(!article.downloadUrl)}
+              href={article.downloadUrl}
+              download
+            >
+              Download
+            </Button>
 
-              {!src && (
-                <button
-                  disabled={Boolean(!article.downloadUrl)}
-                  className="block w-full px-4 py-2 text-lg text-white bg-indigo-500 border-0 rounded focus:outline-none hover:bg-indigo-600"
-                  onClick={() => {
-                    stream(article.downloadUrl ?? "");
-                  }}
-                >
-                  Play
-                </button>
-              )}
-
-              <button
-                className="block w-full px-4 py-2 text-lg text-white bg-red-500 border-0 rounded focus:outline-none hover:bg-red-600"
+            {!src && (
+              <Button
+                colorScheme="teal"
+                isDisabled={Boolean(!article.downloadUrl)}
                 onClick={() => {
-                  const id =
-                    article.id ??
-                    article.synthStatusUrl?.split("/").at(-1) ??
-                    "";
-                  deleteArticle(id);
-                  deleteRequest(id);
+                  stream(article.downloadUrl ?? "");
                 }}
               >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+                Play
+              </Button>
+            )}
 
-        {src && (
-          <audio
-            className="w-full"
-            id="serverAudioStream"
-            ref={ref}
-            controls
-            src={src}
-            preload="none"
-          ></audio>
+            <Button
+              colorScheme="red"
+              onClick={() => {
+                const id =
+                  article.id ?? article.synthStatusUrl?.split("/").at(-1) ?? "";
+                deleteArticle(id);
+                deleteRequest(id);
+              }}
+            >
+              Delete
+            </Button>
+          </Flex>
         )}
-      </li>
+      </Flex>
+
+      {src && (
+        <audio
+          className="w-full"
+          id="serverAudioStream"
+          ref={ref}
+          controls
+          src={src}
+          preload="none"
+        ></audio>
+      )}
     </Flex>
   );
 };
